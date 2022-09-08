@@ -1,54 +1,34 @@
 const http = require('http');
+const path = require('path');
+const fs = require('fs');
 const { rawListeners } = require('process');
 const port = 3000;
-const fs = require('fs');
 
+const renderHTML = (path, res) => {
+    fs.readFile(path, (err, data) => {
+        if (err) {
+            res.writeHead(404);
+            res.write('Error : page not found');
+        } else {
+            res.write(data)
+        }
+        res.end();
+    })
+}
 
 http
     .createServer((req, res) => {
-        // membuat varibel 
         const url = req.url;
-        const file = './about.html';
-        const patch = './about';
         console.log(url);
-
         res.writeHead(200, {
             'Content-Type': "text/html",
         });
-
-        const urlFile = () => {
-            fs.readFile(file, (err, data) => {
-                if (err) {
-                    res.writeHead(404);
-                    res.write('Error : page not found');
-                } else {
-                    res.write(data)
-                }
-                res.end();
-            })
-        }
-        if (url == patch) {
-            urlFile();
+        if (url == '/about') {
+            renderHTML('./about.html', res);
         } else if (url == '/contact') {
-            fs.readFile('./contact.html', (err, data) => {
-                if (err) {
-                    res.writeHead(404);
-                    res.write('Error : page not found');
-                } else {
-                    res.write(data)
-                }
-                res.end();
-            })
+            renderHTML('./contact.html', res);
         } else {
-            fs.readFile('./index.html', (err, data) => {
-                if (err) {
-                    res.writeHead(404);
-                    res.write('Error : page not found');
-                } else {
-                    res.write(data)
-                }
-                res.end();
-            })
+            renderHTML('./index.html', res);
         }
     })
     .listen(port, () => {
